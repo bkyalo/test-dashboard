@@ -1143,3 +1143,329 @@ body::before {
   font-family: "Font Awesome 5 Brands" !important;
   font-weight: 400;
 }
+
+/* PDC Course Specific Styles */
+.pdc-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255, 107, 53, 0.2);
+  color: var(--accent-color);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pdc-type-badge i {
+  font-size: 0.7rem;
+}
+
+.completion-rate {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.completion-rate[data-rate="100"] {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.completion-rate[data-rate^="9"],
+.completion-rate[data-rate^="8"] {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.completion-rate[data-rate^="7"],
+.completion-rate[data-rate^="6"] {
+  background: rgba(255, 170, 0, 0.15);
+  color: var(--warning-color);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.completion-rate[data-rate^="5"],
+.completion-rate[data-rate^="4"],
+.completion-rate[data-rate^="3"],
+.completion-rate[data-rate^="2"],
+.completion-rate[data-rate^="1"],
+.completion-rate[data-rate="0"] {
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--danger-color);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+}
+
+.completion-rate-na {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--info-color);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.pdc-category {
+  border-left-color: var(--accent-color);
+}
+
+.pdc-category:hover {
+  border-left-color: var(--warning-color);
+  box-shadow: 0 10px 30px rgba(255, 170, 0, 0.2);
+}
+
+.pdc-category .category-header h4 {
+  color: var(--accent-color);
+}
+
+/* PDC Course count in navigation */
+#pdc-courses-count {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Enhanced table styling for PDC courses */
+.data-table tbody tr:hover .pdc-type-badge {
+  background: rgba(255, 107, 53, 0.3);
+  border-color: var(--accent-color);
+}
+
+.data-table tbody tr:hover .completion-rate {
+  transform: scale(1.05);
+}
+
+/* PDC section icon styling */
+.section-title .fa-certificate {
+  color: var(--accent-color);
+  text-shadow: 0 0 20px var(--accent-color);
+}
+
+/* PDC stats grid special styling */
+.stat-item .fa-certificate.stat-icon {
+  color: var(--accent-color);
+  text-shadow: 0 0 10px var(--accent-color);
+}
+
+/* Empty PDC Courses Styling */
+.empty-course-row {
+  background: rgba(255, 170, 0, 0.05) !important;
+  border-left: 3px solid var(--warning-color);
+}
+
+.empty-course-row:hover {
+  background: rgba(255, 170, 0, 0.1) !important;
+  border-left-color: var(--accent-color);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: var(--transition);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.view-btn {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--secondary-color);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.view-btn:hover {
+  background: rgba(0, 212, 255, 0.3);
+  transform: scale(1.1);
+  color: var(--secondary-color);
+}
+
+.promote-btn {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--success-color);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.promote-btn:hover {
+  background: rgba(0, 255, 136, 0.3);
+  transform: scale(1.1);
+}
+
+.hidden-btn {
+  background: rgba(255, 170, 0, 0.2);
+  color: var(--warning-color);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.hidden-btn:hover {
+  background: rgba(255, 170, 0, 0.3);
+  transform: scale(1.1);
+}
+
+/* Empty Courses Summary */
+.empty-courses-summary {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--secondary-color);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+}
+
+.summary-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.summary-card:nth-child(1) .summary-icon {
+  background: rgba(255, 170, 0, 0.2);
+  color: var(--warning-color);
+  border: 2px solid rgba(255, 170, 0, 0.3);
+}
+
+.summary-card:nth-child(2) .summary-icon {
+  background: rgba(255, 51, 102, 0.2);
+  color: var(--danger-color);
+  border: 2px solid rgba(255, 51, 102, 0.3);
+}
+
+.summary-card:nth-child(3) .summary-icon {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--secondary-color);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.summary-content {
+  flex: 1;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: var(--light-color);
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-family: "Orbitron", monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  text-shadow: var(--neon-glow);
+}
+
+/* Recommendations */
+.recommendations {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.recommendations h4 {
+  color: var(--info-color);
+  margin-bottom: 1rem;
+  font-family: "Orbitron", monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recommendations ul {
+  list-style: none;
+  padding: 0;
+}
+
+.recommendations li {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+  position: relative;
+  color: var(--light-color);
+  line-height: 1.5;
+}
+
+.recommendations li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--info-color);
+  font-weight: bold;
+}
+
+.recommendations strong {
+  color: var(--secondary-color);
+}
+
+/* Enhanced warning for empty courses section */
+.data-section .warning {
+  border-left: 4px solid var(--warning-color);
+  background: rgba(255, 170, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .empty-courses-summary {
+    padding: 1rem;
+  }
+}

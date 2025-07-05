@@ -183,6 +183,13 @@ body, html, div, span, h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, se
                         <span class="nav-badge"><?php echo number_format($overview['total_courses'] ?? 0); ?></span>
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="#short-courses" class="nav-link" onclick="showSection('short-courses')">
+                        <i class="fas fa-certificate nav-icon"></i>
+                        <span class="nav-text">Short Courses</span>
+                        <span class="nav-badge" id="pdc-courses-count">0</span>
+                    </a>
+                </div>
             </div>
             
             <div class="nav-section">

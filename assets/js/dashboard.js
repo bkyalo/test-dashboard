@@ -518,12 +518,28 @@ function toggleSidebarCollapse() {
   }
 }
 
+function updatePDCCoursesCount() {
+  // Update PDC courses count in navigation
+  const pdcCountElement = document.getElementById("pdc-courses-count")
+  const pdcTotalElement = document.querySelector("#short-courses .stat-value")
+
+  if (pdcCountElement && pdcTotalElement) {
+    const count = pdcTotalElement.textContent.trim()
+    pdcCountElement.textContent = count
+  }
+}
+
 // Initialize dashboard when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   window.somosAnalytics = new SOMASAnalytics()
 
   // Show overview section by default
   showSection("overview")
+})
+
+// Call this function after dashboard loads
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(updatePDCCoursesCount, 1000)
 })
 
 // Add CSS for enhanced animations and effects

@@ -343,6 +343,355 @@
         </div>
     </div>
 
+    <!-- Short Courses (PDC) Analytics Section -->
+    <div id="short-courses" class="dashboard-section">
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-certificate section-icon"></i>
+                    Short Courses (PDC) Analytics
+                </h2>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="toggleSection('pdc-details')">
+                        <i class="fas fa-eye"></i>
+                        Toggle Details
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <i class="fas fa-certificate stat-icon"></i>
+                        <div class="stat-label">Total PDC Courses</div>
+                    </div>
+                    <div class="stat-value"><?php echo number_format($pdcAnalytics['total_pdc_courses']); ?></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <i class="fas fa-users stat-icon"></i>
+                        <div class="stat-label">PDC Enrollments</div>
+                    </div>
+                    <div class="stat-value"><?php echo number_format($pdcAnalytics['total_pdc_enrollments']); ?></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <i class="fas fa-chart-line stat-icon"></i>
+                        <div class="stat-label">Avg PDC Enrollments</div>
+                    </div>
+                    <div class="stat-value"><?php echo $pdcAnalytics['average_pdc_enrollments']; ?></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <i class="fas fa-inbox stat-icon"></i>
+                        <div class="stat-label">Empty PDC Courses</div>
+                    </div>
+                    <div class="stat-value"><?php echo number_format($pdcAnalytics['empty_pdc_courses']); ?></div>
+                </div>
+            </div>
+
+            <div id="pdc-details" class="collapsible-content">
+                <?php if ($pdcAnalytics['total_pdc_courses'] == 0): ?>
+                <div class="info" style="margin: 2rem;">
+                    <h4><i class="fas fa-info-circle"></i> No PDC Courses Found</h4>
+                    <p>No courses found with shortnames starting with "PDC-". This could mean:</p>
+                    <ul>
+                        <li>No short courses have been created yet</li>
+                        <li>Short courses use a different naming convention</li>
+                        <li>Limited API access to course data</li>
+                    </ul>
+                </div>
+                <?php else: ?>
+                
+                <div class="data-section">
+                    <h3><i class="fas fa-star"></i> Most Popular PDC Courses</h3>
+                    
+                    <?php if (empty($pdcAnalytics['popular_pdc_courses'])): ?>
+                    <div class="info" style="margin: 1rem 0;">
+                        <p><strong>No PDC course enrollment data available.</strong></p>
+                    </div>
+                    <?php else: ?>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-certificate"></i> Course Name</th>
+                                    <th><i class="fas fa-tag"></i> Short Name</th>
+                                    <th><i class="fas fa-code"></i> PDC Type</th>
+                                    <th><i class="fas fa-users"></i> Enrollments</th>
+                                    <th><i class="fas fa-trophy"></i> Completion Rate</th>
+                                    <th><i class="fas fa-folder"></i> Category</th>
+                                    <th><i class="fas fa-eye"></i> Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pdcAnalytics['popular_pdc_courses'] as $course): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($course['name']); ?></td>
+                                    <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
+                                    <td>
+                                        <span class="pdc-type-badge">
+                                            <i class="fas fa-tag"></i>
+                                            <?php echo htmlspecialchars($course['pdc_type']); ?>
+                                        </span>
+                                    </td>
+                                    <td><span class="badge"><?php echo number_format($course['enrollments']); ?></span></td>
+                                    <td>
+                                        <?php if (isset($course['completion_rate']) && is_numeric($course['completion_rate'])): ?>
+                                            <span class="completion-rate" data-rate="<?php echo $course['completion_rate']; ?>">
+                                                <?php echo $course['completion_rate']; ?>%
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="completion-rate-na">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="category-tag">
+                                            <i class="fas fa-folder"></i>
+                                            <?php echo htmlspecialchars($course['category'] ?? 'Uncategorized'); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($course['visible']): ?>
+                                            <span class="status-badge online">
+                                                <i class="fas fa-eye"></i> Visible
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="status-badge offline">
+                                                <i class="fas fa-eye-slash"></i> Hidden
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (!empty($pdcAnalytics['pdc_completion_rates'])): ?>
+                <div class="data-section">
+                    <h3><i class="fas fa-trophy"></i> PDC Course Completion Rates</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-certificate"></i> Course</th>
+                                    <th><i class="fas fa-tag"></i> Short Name</th>
+                                    <th><i class="fas fa-users"></i> Enrollments</th>
+                                    <th><i class="fas fa-check-circle"></i> Completions</th>
+                                    <th><i class="fas fa-percentage"></i> Completion Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pdcAnalytics['pdc_completion_rates'] as $completion): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($completion['course']); ?></td>
+                                    <td><code><?php echo htmlspecialchars($completion['shortname']); ?></code></td>
+                                    <td><?php echo number_format($completion['enrollments']); ?></td>
+                                    <td><?php echo is_numeric($completion['completions']) ? number_format($completion['completions']) : 'N/A'; ?></td>
+                                    <td>
+                                        <?php if (is_numeric($completion['completion_rate'])): ?>
+                                            <span class="completion-rate" data-rate="<?php echo $completion['completion_rate']; ?>">
+                                                <?php echo $completion['completion_rate']; ?>%
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="completion-rate-na">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($pdcAnalytics['empty_pdc_courses_list'])): ?>
+<div class="data-section">
+    <h3><i class="fas fa-exclamation-triangle"></i> PDC Courses with Zero Enrollments</h3>
+    <div class="warning" style="margin: 1rem 0;">
+        <p><strong>⚠️ Attention Required:</strong> The following PDC courses have no student enrollments and may need review.</p>
+    </div>
+    
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-certificate"></i> Course Name</th>
+                    <th><i class="fas fa-tag"></i> Short Name</th>
+                    <th><i class="fas fa-code"></i> PDC Type</th>
+                    <th><i class="fas fa-folder"></i> Category</th>
+                    <th><i class="fas fa-eye"></i> Status</th>
+                    <th><i class="fas fa-calendar"></i> Created</th>
+                    <th><i class="fas fa-tools"></i> Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($pdcAnalytics['empty_pdc_courses_list'] as $course): ?>
+                <tr class="empty-course-row">
+                    <td><?php echo htmlspecialchars($course['name']); ?></td>
+                    <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
+                    <td>
+                        <span class="pdc-type-badge">
+                            <i class="fas fa-tag"></i>
+                            <?php echo htmlspecialchars($course['pdc_type']); ?>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="category-tag">
+                            <i class="fas fa-folder"></i>
+                            <?php echo htmlspecialchars($course['category'] ?? 'Uncategorized'); ?>
+                        </span>
+                    </td>
+                    <td>
+                        <?php if ($course['visible']): ?>
+                            <span class="status-badge online">
+                                <i class="fas fa-eye"></i> Visible
+                            </span>
+                        <?php else: ?>
+                            <span class="status-badge offline">
+                                <i class="fas fa-eye-slash"></i> Hidden
+                            </span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php 
+                        if ($course['created'] > 0) {
+                            echo date('Y-m-d', $course['created']);
+                        } else {
+                            echo 'Unknown';
+                        }
+                        ?>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
+                               target="_blank" 
+                               class="action-btn view-btn" 
+                               title="View Course">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <?php if ($course['visible']): ?>
+                                <span class="action-btn promote-btn" title="Course is visible - ready for promotion">
+                                    <i class="fas fa-bullhorn"></i>
+                                </span>
+                            <?php else: ?>
+                                <span class="action-btn hidden-btn" title="Course is hidden - may need to be published">
+                                    <i class="fas fa-eye-slash"></i>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="empty-courses-summary">
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-icon">
+                    <i class="fas fa-eye-slash"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Hidden Courses</div>
+                    <div class="summary-value">
+                        <?php 
+                        $hiddenCount = 0;
+                        foreach ($pdcAnalytics['empty_pdc_courses_list'] as $course) {
+                            if (!$course['visible']) $hiddenCount++;
+                        }
+                        echo $hiddenCount;
+                        ?>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Visible but Empty</div>
+                    <div class="summary-value">
+                        <?php 
+                        $visibleEmptyCount = 0;
+                        foreach ($pdcAnalytics['empty_pdc_courses_list'] as $course) {
+                            if ($course['visible']) $visibleEmptyCount++;
+                        }
+                        echo $visibleEmptyCount;
+                        ?>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-label">Recently Created</div>
+                    <div class="summary-value">
+                        <?php 
+                        $recentCount = 0;
+                        $thirtyDaysAgo = time() - (30 * 24 * 60 * 60);
+                        foreach ($pdcAnalytics['empty_pdc_courses_list'] as $course) {
+                            if ($course['created'] > $thirtyDaysAgo) $recentCount++;
+                        }
+                        echo $recentCount;
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recommendations">
+            <h4><i class="fas fa-lightbulb"></i> Recommendations</h4>
+            <ul>
+                <li><strong>Hidden Courses:</strong> Review if these should be published or archived</li>
+                <li><strong>Visible Empty Courses:</strong> Consider marketing campaigns or content review</li>
+                <li><strong>Recently Created:</strong> May need time to gain enrollments - monitor progress</li>
+                <li><strong>Old Empty Courses:</strong> Consider archiving or significant content updates</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+                <?php if (!empty($pdcAnalytics['pdc_course_categories'])): ?>
+                <div class="data-section">
+                    <h3><i class="fas fa-sitemap"></i> PDC Courses by Category</h3>
+                    <div class="category-grid">
+                        <?php foreach ($pdcAnalytics['pdc_course_categories'] as $category => $data): ?>
+                        <div class="category-card pdc-category">
+                            <div class="category-header">
+                                <h4><i class="fas fa-certificate"></i> <?php echo htmlspecialchars($category); ?></h4>
+                            </div>
+                            <div class="category-stats">
+                                <div class="category-stat">
+                                    <div class="stat-label">PDC Courses</div>
+                                    <div class="stat-number"><?php echo $data['count']; ?></div>
+                                </div>
+                                <div class="category-stat">
+                                    <div class="stat-label">Enrollments</div>
+                                    <div class="stat-number"><?php echo $data['enrollments']; ?></div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
     <!-- System Information -->
     <div id="system" class="dashboard-section">
         <?php if (isset($systemHealth)): ?>

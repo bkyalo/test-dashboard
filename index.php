@@ -30,6 +30,7 @@ try {
     $overview = $analyticsService->getDashboardOverview();
     $userStats = $analyticsService->getUserStatistics();
     $courseAnalytics = $analyticsService->getCourseAnalytics();
+    $pdcAnalytics = $analyticsService->getPDCCourseAnalytics();
     $systemHealth = $analyticsService->getSystemHealth();
     
     // Include header

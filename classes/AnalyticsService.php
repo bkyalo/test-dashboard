@@ -114,33 +114,41 @@ class AnalyticsService {
     
         foreach ($userList as $user) {
             // Skip admin and guest users
-            if ($user['id'] <= 2) continue;
+            if (($user['id'] ?? 0) <= 2) continue;
+            
+            // Safely get user data with fallbacks
+            $fullname = $user['fullname'] ?? $user['firstname'] . ' ' . $user['lastname'] ?? 'Unknown User';
+            $email = $user['email'] ?? 'No email available';
+            $lastaccess = $user['lastaccess'] ?? 0;
+            $firstaccess = $user['firstaccess'] ?? 0;
         
             // Count active users
-            if (isset($user['lastaccess']) && $user['lastaccess'] > 0) {
-                if ($user['lastaccess'] > $weekAgo) {
+            if ($lastaccess > 0) {
+                if ($lastaccess > $weekAgo) {
                     $stats['active_last_week']++;
                 }
-                if ($user['lastaccess'] > $monthAgo) {
+                if ($lastaccess > $monthAgo) {
                     $stats['active_last_month']++;
                 
-                    // Track top active users
-                    $stats['top_active_users'][] = [
-                        'name' => $user['fullname'],
-                        'email' => $user['email'],
-                        'last_access' => date('Y-m-d H:i', $user['lastaccess'])
-                    ];
+                    // Track top active users - only if we have proper data
+                    if (!empty($fullname) && $fullname !== 'Unknown User') {
+                        $stats['top_active_users'][] = [
+                            'name' => $fullname,
+                            'email' => $email,
+                            'last_access' => date('Y-m-d H:i', $lastaccess)
+                        ];
+                    }
                 }
             } else {
                 $stats['never_logged_in']++;
             }
         
-            // Recent registrations (last 30 days)
-            if (isset($user['firstaccess']) && $user['firstaccess'] > $monthAgo) {
+            // Recent registrations (last 30 days) - only if we have proper data
+            if ($firstaccess > $monthAgo && !empty($fullname) && $fullname !== 'Unknown User') {
                 $stats['recent_registrations'][] = [
-                    'name' => $user['fullname'],
-                    'email' => $user['email'],
-                    'date' => date('Y-m-d', $user['firstaccess'])
+                    'name' => $fullname,
+                    'email' => $email,
+                    'date' => date('Y-m-d', $firstaccess)
                 ];
             }
         }
@@ -174,7 +182,7 @@ class AnalyticsService {
             $courseEnrollments = [];
             
             foreach ($courses as $course) {
-                if ($course['id'] == 1) continue; // Skip site course
+                if (($course['id'] ?? 0) == 1) continue; // Skip site course
                 
                 try {
                     $enrollments = $this->apiClient->getCourseEnrollments($course['id']);
@@ -197,8 +205,8 @@ class AnalyticsService {
                             try {
                                 $categories = $this->apiClient->getCourseCategories();
                                 foreach ($categories as $cat) {
-                                    if ($cat['id'] == $course['categoryid']) {
-                                        $categoryName = $cat['name'];
+                                    if (($cat['id'] ?? 0) == $course['categoryid']) {
+                                        $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
                                         break;
                                     }
                                 }
@@ -209,9 +217,9 @@ class AnalyticsService {
                         }
                         
                         $courseEnrollments[] = [
-                            'id' => $course['id'],
-                            'name' => $course['fullname'],
-                            'shortname' => $course['shortname'],
+                            'id' => $course['id'] ?? 0,
+                            'name' => $course['fullname'] ?? 'Unknown Course',
+                            'shortname' => $course['shortname'] ?? 'N/A',
                             'enrollments' => $enrollmentCount,
                             'category' => $categoryName,
                             'visible' => $course['visible'] ?? 1
@@ -251,6 +259,202 @@ class AnalyticsService {
     }
     
     /**
+     * Get PDC (Short Courses) analytics - courses with shortname starting with "PDC-"
+     */
+    public function getPDCCourseAnalytics() {
+        return $this->getCachedData('pdc_course_analytics', function() {
+            $allCourses = $this->apiClient->getCourses();
+            $pdcCourses = [];
+            
+            // Filter courses with shortname starting with "PDC-"
+            foreach ($allCourses as $course) {
+                $shortname = $course['shortname'] ?? '';
+                if (strpos($shortname, 'PDC-') === 0) {
+                    $pdcCourses[] = $course;
+                }
+            }
+            
+            $analytics = [
+                'total_pdc_courses' => count($pdcCourses),
+                'pdc_courses_with_enrollments' => 0,
+                'average_pdc_enrollments' => 0,
+                'popular_pdc_courses' => [],
+                'empty_pdc_courses_list' => [],
+                'pdc_course_categories' => [],
+                'empty_pdc_courses' => 0,
+                'total_pdc_enrollments' => 0,
+                'pdc_completion_rates' => [],
+                'pdc_enrollment_trends' => []
+            ];
+            
+            if (empty($pdcCourses)) {
+                return $analytics;
+            }
+            
+            $totalEnrollments = 0;
+            $courseEnrollments = [];
+            
+            foreach ($pdcCourses as $course) {
+                if (($course['id'] ?? 0) == 1) continue; // Skip site course
+                
+                try {
+                    $enrollments = $this->apiClient->getCourseEnrollments($course['id']);
+                    $enrollmentCount = count($enrollments);
+                    
+                    $analytics['total_pdc_enrollments'] += $enrollmentCount;
+                    
+                    if ($enrollmentCount > 0) {
+                        $analytics['pdc_courses_with_enrollments']++;
+                        $totalEnrollments += $enrollmentCount;
+                        
+                        // Get category name
+                        $categoryName = 'Uncategorized';
+                        if (isset($course['categoryname']) && !empty($course['categoryname'])) {
+                            $categoryName = $course['categoryname'];
+                        } elseif (isset($course['category']) && !empty($course['category'])) {
+                            $categoryName = $course['category'];
+                        } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
+                            try {
+                                $categories = $this->apiClient->getCourseCategories();
+                                foreach ($categories as $cat) {
+                                    if (($cat['id'] ?? 0) == $course['categoryid']) {
+                                        $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
+                                        break;
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                $categoryName = 'Category ' . $course['categoryid'];
+                            }
+                        }
+                        
+                        // Extract PDC course type from shortname (e.g., PDC-IT, PDC-BUS)
+                        $pdcType = 'General';
+                        $shortname = $course['shortname'] ?? '';
+                        if (preg_match('/^PDC-([A-Z]+)/', $shortname, $matches)) {
+                            $pdcType = $matches[1];
+                        }
+                        
+                        $courseData = [
+                            'id' => $course['id'] ?? 0,
+                            'name' => $course['fullname'] ?? 'Unknown Course',
+                            'shortname' => $course['shortname'] ?? 'N/A',
+                            'enrollments' => $enrollmentCount,
+                            'category' => $categoryName,
+                            'pdc_type' => $pdcType,
+                            'visible' => $course['visible'] ?? 1,
+                            'startdate' => $course['startdate'] ?? 0,
+                            'enddate' => $course['enddate'] ?? 0
+                        ];
+                        
+                        $courseEnrollments[] = $courseData;
+                        
+                        // Try to get completion data
+                        try {
+                            $completions = $this->apiClient->getCourseCompletions($course['id']);
+                            $completionCount = 0;
+                            foreach ($completions as $completion) {
+                                if (isset($completion['completed']) && $completion['completed']) {
+                                    $completionCount++;
+                                }
+                            }
+                            $completionRate = $enrollmentCount > 0 ? round(($completionCount / $enrollmentCount) * 100, 1) : 0;
+                            $courseData['completion_rate'] = $completionRate;
+                            $courseData['completions'] = $completionCount;
+                            
+                            $analytics['pdc_completion_rates'][] = [
+                                'course' => $course['fullname'],
+                                'shortname' => $course['shortname'],
+                                'enrollments' => $enrollmentCount,
+                                'completions' => $completionCount,
+                                'completion_rate' => $completionRate
+                            ];
+                        } catch (Exception $e) {
+                            $courseData['completion_rate'] = 'N/A';
+                            $courseData['completions'] = 'N/A';
+                        }
+                        
+                    } else {
+                        $analytics['empty_pdc_courses']++;
+                        
+                        // Add to empty courses list with details
+                        $categoryName = 'Uncategorized';
+                        if (isset($course['categoryname']) && !empty($course['categoryname'])) {
+                            $categoryName = $course['categoryname'];
+                        } elseif (isset($course['category']) && !empty($course['category'])) {
+                            $categoryName = $course['category'];
+                        } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
+                            try {
+                                $categories = $this->apiClient->getCourseCategories();
+                                foreach ($categories as $cat) {
+                                    if (($cat['id'] ?? 0) == $course['categoryid']) {
+                                        $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
+                                        break;
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                $categoryName = 'Category ' . $course['categoryid'];
+                            }
+                        }
+                        
+                        // Extract PDC course type from shortname
+                        $pdcType = 'General';
+                        $shortname = $course['shortname'] ?? '';
+                        if (preg_match('/^PDC-([A-Z]+)/', $shortname, $matches)) {
+                            $pdcType = $matches[1];
+                        }
+                        
+                        $analytics['empty_pdc_courses_list'][] = [
+                            'id' => $course['id'] ?? 0,
+                            'name' => $course['fullname'] ?? 'Unknown Course',
+                            'shortname' => $course['shortname'] ?? 'N/A',
+                            'category' => $categoryName,
+                            'pdc_type' => $pdcType,
+                            'visible' => $course['visible'] ?? 1,
+                            'startdate' => $course['startdate'] ?? 0,
+                            'enddate' => $course['enddate'] ?? 0,
+                            'created' => $course['timecreated'] ?? 0
+                        ];
+                    }
+                    
+                    // Category statistics for PDC courses
+                    if (!isset($analytics['pdc_course_categories'][$categoryName])) {
+                        $analytics['pdc_course_categories'][$categoryName] = [
+                            'count' => 0,
+                            'enrollments' => 0
+                        ];
+                    }
+                    $analytics['pdc_course_categories'][$categoryName]['count']++;
+                    $analytics['pdc_course_categories'][$categoryName]['enrollments'] += $enrollmentCount;
+                    
+                } catch (Exception $e) {
+                    // Skip courses we can't access
+                    continue;
+                }
+            }
+            
+            if ($analytics['pdc_courses_with_enrollments'] > 0) {
+                $analytics['average_pdc_enrollments'] = round($totalEnrollments / $analytics['pdc_courses_with_enrollments'], 1);
+            }
+            
+            // Sort by enrollments and get top 10
+            usort($courseEnrollments, function($a, $b) {
+                return $b['enrollments'] - $a['enrollments'];
+            });
+            $analytics['popular_pdc_courses'] = array_slice($courseEnrollments, 0, 10);
+            
+            // Sort completion rates
+            usort($analytics['pdc_completion_rates'], function($a, $b) {
+                $aRate = is_numeric($a['completion_rate']) ? $a['completion_rate'] : 0;
+                $bRate = is_numeric($b['completion_rate']) ? $b['completion_rate'] : 0;
+                return $bRate <=> $aRate;
+            });
+            $analytics['pdc_completion_rates'] = array_slice($analytics['pdc_completion_rates'], 0, 10);
+            
+            return $analytics;
+        });
+    }
+    
+    /**
      * Get system health metrics
      */
     public function getSystemHealth() {
@@ -276,7 +480,7 @@ class AnalyticsService {
         $activeCount = 0;
         
         foreach ($users as $user) {
-            if ($user['id'] <= 2) continue; // Skip admin/guest
+            if (($user['id'] ?? 0) <= 2) continue; // Skip admin/guest
             if (isset($user['lastaccess']) && $user['lastaccess'] > $monthAgo) {
                 $activeCount++;
             }
@@ -293,6 +497,27 @@ class AnalyticsService {
             if (strpos($key, 'somas_analytics_') === 0) {
                 unset($_SESSION[$key]);
             }
+        }
+    }
+    
+    /**
+     * Debug function to check user data structure
+     */
+    public function debugUserData() {
+        try {
+            $users = $this->apiClient->getUsers();
+            $userList = $users['users'] ?? [];
+            
+            if (!empty($userList)) {
+                $sampleUser = $userList[0];
+                error_log("Sample user data structure: " . print_r($sampleUser, true));
+                return $sampleUser;
+            }
+            
+            return null;
+        } catch (Exception $e) {
+            error_log("Debug user data error: " . $e->getMessage());
+            return null;
         }
     }
 }
