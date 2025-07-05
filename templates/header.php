@@ -11,119 +11,127 @@
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <meta name="theme-color" content="#0a0e27">
     <style>
-/* Quicksand Font Override for Live Dashboard */
-body, .nav-text, .card-title, .metric-subtitle, .stat-label, .info-item label, 
-.data-table td, .category-header h4, .section-subtitle, p, span, div {
+/* ALL FONTS USE QUICKSAND - Complete Override */
+* {
     font-family: 'Quicksand', sans-serif !important;
 }
 
-/* Keep Orbitron for specific futuristic elements */
+body, html, div, span, h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, 
+.nav-text, .card-title, .metric-subtitle, .stat-label, .info-item label, 
+.data-table td, .data-table th, .category-header h4, .section-subtitle, 
 .sidebar-title, .header-title, .section-title, .metric, .stat-value, 
-.nav-section-title, .stat-number {
-    font-family: 'Orbitron', monospace !important;
+.nav-section-title, .stat-number, .btn, .btn-secondary, .status-badge, 
+.badge, .nav-badge, .warning, .error, .info, .category-card, 
+.status-label, .status-value, .footer-content, .footer-bottom {
+    font-family: 'Quicksand', sans-serif !important;
 }
 
-/* Enhanced readability with Quicksand */
-.nav-text {
-    font-weight: 500;
+/* Font Weight Hierarchy with Quicksand */
+.sidebar-title, .header-title {
+    font-weight: 900 !important;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.section-title {
+    font-weight: 800 !important;
+    letter-spacing: 1.5px;
+}
+
+.metric, .stat-value, .stat-number {
+    font-weight: 700 !important;
+    letter-spacing: 1px;
+}
+
+.nav-section-title {
+    font-weight: 700 !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .card-title {
-    font-weight: 600;
+    font-weight: 600 !important;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-.metric-subtitle {
-    font-weight: 400;
+.nav-text {
+    font-weight: 500 !important;
+}
+
+.metric-subtitle, .stat-label {
+    font-weight: 400 !important;
 }
 
 .data-table th {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 700;
-}
-
-.data-table td {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 400;
-}
-
-.info-item label {
-    font-weight: 600;
-}
-
-.info-item span {
-    font-weight: 500;
-}
-
-/* Button text with Quicksand */
-.btn, .btn-secondary {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 600;
-}
-
-/* Status and badge text */
-.status-badge, .badge, .nav-badge {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 600;
-}
-
-/* Warning and error text */
-.warning, .error, .info {
-    font-family: 'Quicksand', sans-serif !important;
-}
-
-.warning h4, .error h2, .info h4 {
-    font-family: 'Orbitron', monospace !important;
-}
-
-/* Table headers keep Quicksand but with proper weight */
-.data-table th {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 700;
+    font-weight: 700 !important;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-/* Category cards */
-.category-card {
-    font-family: 'Quicksand', sans-serif !important;
+.data-table td {
+    font-weight: 400 !important;
 }
 
-.category-stat .stat-label {
-    font-family: 'Quicksand', sans-serif !important;
-    font-weight: 500;
+.info-item label {
+    font-weight: 600 !important;
 }
 
-/* System status */
-.status-label, .status-value {
-    font-family: 'Quicksand', sans-serif !important;
+.info-item span {
+    font-weight: 500 !important;
 }
 
-.status-label {
-    font-weight: 600;
-}
-
-.status-value {
-    font-weight: 700;
-}
-
-/* Footer text */
-.footer-content, .footer-bottom {
-    font-family: 'Quicksand', sans-serif !important;
-}
-
-/* Enhanced contrast for better readability */
-.nav-text, .card-title, .metric-subtitle {
-    color: var(--light-color);
-}
-
-/* Improved button typography */
-.btn {
+.btn, .btn-secondary {
+    font-weight: 600 !important;
     letter-spacing: 0.5px;
 }
 
-.btn-secondary {
+.status-badge, .badge, .nav-badge {
+    font-weight: 600 !important;
     letter-spacing: 0.3px;
+}
+
+.status-label {
+    font-weight: 600 !important;
+}
+
+.status-value {
+    font-weight: 700 !important;
+}
+
+/* Warning and error headings */
+.warning h4, .error h2, .info h4 {
+    font-weight: 700 !important;
+    letter-spacing: 1px;
+}
+
+/* Enhanced readability */
+.sidebar-subtitle {
+    font-weight: 400 !important;
+    letter-spacing: 0.5px;
+}
+
+.header-subtitle {
+    font-weight: 400 !important;
+    letter-spacing: 0.3px;
+}
+
+/* Category cards */
+.category-stat .stat-label {
+    font-weight: 500 !important;
+}
+
+/* Footer styling */
+.footer-content h4 {
+    font-weight: 600 !important;
+}
+
+.footer-content p, .footer-content li {
+    font-weight: 400 !important;
+}
+
+.footer-bottom {
+    font-weight: 500 !important;
 }
 </style>
 </head>
