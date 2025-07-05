@@ -4,8 +4,8 @@
  */
 
 // Moodle Configuration
-define('MOODLE_URL', 'https://somas.snap.co.ke');
-define('MOODLE_TOKEN', '94583525e069d65b8f982e94d5006c23');
+define('MOODLE_URL', 'https://somas.ouk.ac.ke');
+define('MOODLE_TOKEN', 'd535f9bb93cea06a9163f1159d6032aa');
 define('MOODLE_REST_FORMAT', 'json');
 
 // Dashboard Configuration
