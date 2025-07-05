@@ -297,14 +297,6 @@ class SOMASAnalytics {
     activeLink.classList.add("active")
   }
 
-  autoRefresh() {
-    // Check if data is stale (older than 10 minutes)
-    const lastUpdated = document.querySelector(".header-time")
-    if (lastUpdated) {
-      this.showStaleDataWarning()
-    }
-  }
-
   updateTime() {
     const timeElement = document.getElementById("current-time")
     if (timeElement) {
@@ -461,7 +453,14 @@ function showSection(sectionId) {
 
     // Initialize PDC pagination if showing short-courses section
     if (sectionId === "short-courses") {
-      setTimeout(initializePDCPagination, 100)
+      setTimeout(() => {
+        initializePDCPagination()
+        // Also expand the details section by default
+        const pdcDetails = document.getElementById("pdc-details")
+        if (pdcDetails && pdcDetails.classList.contains("hidden")) {
+          toggleSection("pdc-details")
+        }
+      }, 200)
     }
   }
 
@@ -490,6 +489,11 @@ function toggleSection(sectionId) {
       } else {
         button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Details'
       }
+    }
+
+    // If showing PDC details, initialize pagination
+    if (sectionId === "pdc-details" && !section.classList.contains("hidden")) {
+      setTimeout(initializePDCPagination, 100)
     }
   }
 }
@@ -540,6 +544,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show overview section by default
   showSection("overview")
+
+  // Initialize PDC pagination immediately if data exists
+  setTimeout(initializePDCPagination, 500)
 })
 
 // Call this function after dashboard loads
@@ -641,6 +648,60 @@ style.textContent = `
   .nav-link:hover::after {
     left: 100%;
   }
+  
+  /* Pagination styles */
+  .pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .pagination-btn {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #00d4ff;
+    border: 1px solid #00d4ff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .pagination-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #00d4ff, #0066cc);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+  }
+  
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #333;
+    color: #666;
+    border-color: #666;
+  }
+  
+  .pagination-current {
+    color: #00d4ff;
+    font-weight: 600;
+  }
+  
+  .pagination-info, .pagination-summary {
+    color: #ccc;
+    font-size: 0.9rem;
+  }
 `
 document.head.appendChild(style)
 
@@ -650,14 +711,45 @@ const pdcCoursesPerPage = 10
 let pdcCoursesData = []
 
 function initializePDCPagination() {
+  console.log("Initializing PDC pagination...")
   const dataElement = document.getElementById("pdc-courses-data")
+
   if (dataElement) {
     try {
-      pdcCoursesData = JSON.parse(dataElement.textContent)
-      updatePDCTable()
-      updatePDCPaginationControls()
+      const jsonText = dataElement.textContent.trim()
+      console.log("PDC data found:", jsonText.substring(0, 100) + "...")
+
+      if (jsonText) {
+        pdcCoursesData = JSON.parse(jsonText)
+        console.log("Parsed PDC courses:", pdcCoursesData.length, "courses")
+
+        if (pdcCoursesData.length > 0) {
+          updatePDCTable()
+          updatePDCPaginationControls()
+          console.log("PDC table updated successfully")
+        } else {
+          console.log("No PDC courses data available")
+          const tableBody = document.getElementById("pdc-courses-table")
+          if (tableBody) {
+            tableBody.innerHTML =
+              '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #999;">No PDC courses found</td></tr>'
+          }
+        }
+      }
     } catch (e) {
       console.error("Error parsing PDC courses data:", e)
+      const tableBody = document.getElementById("pdc-courses-table")
+      if (tableBody) {
+        tableBody.innerHTML =
+          '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #f44336;">Error loading PDC courses data</td></tr>'
+      }
+    }
+  } else {
+    console.log("PDC courses data element not found")
+    const tableBody = document.getElementById("pdc-courses-table")
+    if (tableBody) {
+      tableBody.innerHTML =
+        '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #999;">PDC courses data not available</td></tr>'
     }
   }
 }
@@ -677,11 +769,16 @@ function changePDCPage(direction) {
 
 function updatePDCTable() {
   const tableBody = document.getElementById("pdc-courses-table")
-  if (!tableBody || pdcCoursesData.length === 0) return
+  if (!tableBody || pdcCoursesData.length === 0) {
+    console.log("No table body or no data")
+    return
+  }
 
   const startIndex = (pdcCurrentPage - 1) * pdcCoursesPerPage
   const endIndex = Math.min(startIndex + pdcCoursesPerPage, pdcCoursesData.length)
   const currentPageData = pdcCoursesData.slice(startIndex, endIndex)
+
+  console.log(`Displaying courses ${startIndex + 1} to ${endIndex} of ${pdcCoursesData.length}`)
 
   let html = ""
   currentPageData.forEach((course) => {
@@ -690,6 +787,7 @@ function updatePDCTable() {
       : '<span class="status-badge offline"><i class="fas fa-eye-slash"></i> Hidden</span>'
 
     const createdDate = course.created > 0 ? new Date(course.created * 1000).toLocaleDateString() : "Unknown"
+    const moodleUrl = window.MOODLE_URL || ""
 
     html += `
       <tr>
@@ -699,7 +797,7 @@ function updatePDCTable() {
         <td>${statusBadge}</td>
         <td>${createdDate}</td>
         <td>
-          <a href="${window.MOODLE_URL || ""}/course/view.php?id=${course.id}" 
+          <a href="${moodleUrl}/course/view.php?id=${course.id}" 
              target="_blank" 
              class="action-btn view-btn" 
              title="View Course">
@@ -711,6 +809,7 @@ function updatePDCTable() {
   })
 
   tableBody.innerHTML = html
+  console.log("Table HTML updated")
 }
 
 function updatePDCPaginationControls() {
@@ -748,6 +847,8 @@ function updatePDCPaginationControls() {
       btn.classList.toggle("disabled", pdcCurrentPage >= totalPages)
     }
   })
+
+  console.log(`Pagination updated: Page ${pdcCurrentPage} of ${totalPages}`)
 }
 
 function escapeHtml(text) {
@@ -755,14 +856,3 @@ function escapeHtml(text) {
   div.textContent = text
   return div.innerHTML
 }
-
-// Initialize on page load
-document.addEventListener("DOMContentLoaded", () => {
-  // Set MOODLE_URL for JavaScript
-  window.MOODLE_URL = "<?php echo MOODLE_URL; ?>"
-
-  // Initialize pagination if short-courses section is visible
-  if (document.getElementById("short-courses").style.display !== "none") {
-    initializePDCPagination()
-  }
-})

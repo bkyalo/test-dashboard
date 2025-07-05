@@ -130,6 +130,30 @@
                 </table>
             </div>
         </div>
+        <?php else: ?>
+        <div class="section overview-pdc-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-star section-icon"></i>
+                    Top 5 Popular PDC Courses
+                </h2>
+                <div class="section-actions">
+                    <a href="#short-courses" onclick="showSection('short-courses')" class="btn-secondary">
+                        <i class="fas fa-certificate"></i>
+                        View All PDC Courses
+                    </a>
+                </div>
+            </div>
+            
+            <div class="info" style="margin: 1rem 0;">
+                <p><strong>No PDC courses found with enrollments.</strong> This could mean:</p>
+                <ul>
+                    <li>No PDC courses have been created yet</li>
+                    <li>PDC courses have no enrollments</li>
+                    <li>Limited API access to course data</li>
+                </ul>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 
@@ -779,3 +803,8 @@
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Set MOODLE_URL for JavaScript -->
+<script>
+    window.MOODLE_URL = "<?php echo MOODLE_URL; ?>";
+</script>
