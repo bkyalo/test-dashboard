@@ -1,5 +1,4 @@
 /* FontAwesome 5 - Fixed Import */
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap");
 
 /* Reset and Base Styles */
@@ -27,7 +26,7 @@
   --neon-glow: 0 0 20px rgba(0, 212, 255, 0.5);
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.4);
-  --border-radius: 16px;
+  --border-radius: 8px;
   --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   --sidebar-width: 280px;
   --sidebar-collapsed: 80px;
@@ -273,7 +272,7 @@ body::before {
   color: white;
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
-  border-radius: 10px;
+  border-radius: 6px;
   margin-left: auto;
   transition: var(--transition);
 }
@@ -704,7 +703,7 @@ body::before {
   background: rgba(0, 212, 255, 0.2);
   color: var(--secondary-color);
   padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+  border-radius: 4px;
   font-family: "Orbitron", monospace;
   font-size: 0.8rem;
 }
@@ -714,7 +713,7 @@ body::before {
   background: linear-gradient(135deg, var(--secondary-color), var(--info-color));
   color: white;
   padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 700;
   text-shadow: none;
