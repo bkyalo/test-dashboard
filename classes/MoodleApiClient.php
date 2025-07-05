@@ -74,14 +74,72 @@ class MoodleApiClient {
     }
     
     /**
-     * Get all users
+     * Get all users - with fallback for restricted access
      */
     public function getUsers($criteria = []) {
-        $params = [];
-        if (!empty($criteria)) {
-            $params['criteria'] = $criteria;
+        try {
+            // First try without any criteria (most permissive)
+            if (empty($criteria)) {
+                return $this->call('core_user_get_users');
+            }
+            
+            // If criteria provided, try with criteria
+            $params = ['criteria' => $criteria];
+            return $this->call('core_user_get_users', $params);
+            
+        } catch (Exception $e) {
+            // If the above fails, try alternative approaches
+            if (strpos($e->getMessage(), 'Invalid parameter') !== false) {
+                // Try with minimal criteria
+                try {
+                    return $this->call('core_user_get_users', [
+                        'criteria' => [
+                            [
+                                'key' => 'deleted',
+                                'value' => '0'
+                            ]
+                        ]
+                    ]);
+                } catch (Exception $e2) {
+                    // Last resort - return empty structure
+                    return ['users' => []];
+                }
+            }
+            throw $e;
         }
-        return $this->call('core_user_get_users', $params);
+    }
+    
+    /**
+     * Get users by field - alternative method
+     */
+    public function getUsersByField($field = 'id', $values = [1]) {
+        try {
+            return $this->call('core_user_get_users_by_field', [
+                'field' => $field,
+                'values' => $values
+            ]);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get user count - lightweight alternative
+     */
+    public function getUserCount() {
+        try {
+            $users = $this->getUsers();
+            return count($users['users'] ?? []);
+        } catch (Exception $e) {
+            // Fallback: try to get site info which might contain user count
+            try {
+                $siteInfo = $this->getSiteInfo();
+                // Some Moodle versions include user count in site info
+                return $siteInfo['usercount'] ?? 0;
+            } catch (Exception $e2) {
+                return 0;
+            }
+        }
     }
     
     /**

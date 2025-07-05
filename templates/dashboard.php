@@ -61,31 +61,79 @@
             </div>
         </div>
         
+        <?php if (isset($userStats['access_limited']) && $userStats['access_limited']): ?>
+        <div class="warning" style="margin: 1rem;">
+            <strong>⚠️ Limited User Data Access</strong><br>
+            Your web service token has restricted access to detailed user information. 
+            Basic user count is available, but detailed analytics require additional permissions.
+            <br><br>
+            <strong>To enable full user analytics:</strong>
+            <ol>
+                <li>Contact your Moodle administrator</li>
+                <li>Request additional capabilities for your web service user</li>
+                <li>Ensure the web service can access user profiles and activity data</li>
+            </ol>
+        </div>
+        <?php endif; ?>
+        
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-icon">📊</div>
                 <div class="stat-content">
                     <label>Active Last Week:</label>
-                    <span class="stat-value"><?php echo number_format($userStats['active_last_week']); ?></span>
+                    <span class="stat-value">
+                        <?php 
+                        if (isset($userStats['access_limited']) && $userStats['access_limited']) {
+                            echo 'N/A';
+                        } else {
+                            echo number_format($userStats['active_last_week']); 
+                        }
+                        ?>
+                    </span>
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-icon">📈</div>
                 <div class="stat-content">
                     <label>Active Last Month:</label>
-                    <span class="stat-value"><?php echo number_format($userStats['active_last_month']); ?></span>
+                    <span class="stat-value">
+                        <?php 
+                        if (isset($userStats['access_limited']) && $userStats['access_limited']) {
+                            echo 'N/A';
+                        } else {
+                            echo number_format($userStats['active_last_month']); 
+                        }
+                        ?>
+                    </span>
                 </div>
             </div>
             <div class="stat-item">
                 <div class="stat-icon">⚠️</div>
                 <div class="stat-content">
                     <label>Never Logged In:</label>
-                    <span class="stat-value"><?php echo number_format($userStats['never_logged_in']); ?></span>
+                    <span class="stat-value">
+                        <?php 
+                        if (isset($userStats['access_limited']) && $userStats['access_limited']) {
+                            echo 'N/A';
+                        } else {
+                            echo number_format($userStats['never_logged_in']); 
+                        }
+                        ?>
+                    </span>
                 </div>
             </div>
         </div>
         
         <div id="user-details" class="collapsible-content">
+            <?php if (isset($userStats['access_limited']) && $userStats['access_limited']): ?>
+            <div class="info" style="margin: 1rem 0;">
+                <h4>📋 User Data Access Information</h4>
+                <p>Detailed user analytics are not available due to API access restrictions.</p>
+                <p><strong>Available Data:</strong> Basic user count from site information</p>
+                <p><strong>Restricted Data:</strong> User activity, login history, registration details</p>
+            </div>
+            <?php else: ?>
+            <!-- Show full user details when access is available -->
             <?php if (!empty($userStats['recent_registrations'])): ?>
             <div class="data-section">
                 <h3>📝 Recent Registrations (Last 30 Days)</h3>
@@ -136,6 +184,7 @@
                     </table>
                 </div>
             </div>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>

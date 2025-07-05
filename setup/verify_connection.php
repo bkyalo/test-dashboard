@@ -58,28 +58,70 @@ try {
     }
     
     // Test 2: Get users (limited)
-    echo "<h3>Test 2: User Access</h3>";
+    echo "<h3>Test 2: User Access (Detailed)</h3>";
     try {
+        // Test 1: Basic user call
+        echo "<h4>2a. Basic User API Call</h4>";
         $users = $apiClient->getUsers();
         $userCount = count($users['users'] ?? []);
         echo "<div class='success'>";
-        echo "<strong>✅ SUCCESS:</strong> Can access user data<br>";
+        echo "<strong>✅ SUCCESS:</strong> Basic user access works<br>";
         echo "<strong>Total Users Found:</strong> " . $userCount . "<br>";
+        echo "</div>";
         
+        // Test 2: User details access
         if ($userCount > 0) {
-            echo "<strong>Sample Users:</strong><br>";
-            foreach (array_slice($users['users'], 0, 5) as $user) {
-                if ($user['id'] > 2) { // Skip admin/guest
-                    echo "- " . htmlspecialchars($user['fullname']) . " (" . htmlspecialchars($user['email']) . ")<br>";
-                }
+            echo "<h4>2b. User Details Access</h4>";
+            $sampleUser = $users['users'][0] ?? null;
+            if ($sampleUser && isset($sampleUser['email'])) {
+                echo "<div class='success'>";
+                echo "<strong>✅ SUCCESS:</strong> Can access detailed user information<br>";
+                echo "<strong>Sample User:</strong> " . htmlspecialchars($sampleUser['fullname'] ?? 'N/A') . "<br>";
+                echo "</div>";
+            } else {
+                echo "<div class='warning'>";
+                echo "<strong>⚠️ WARNING:</strong> Limited user details access<br>";
+                echo "Can get user count but not detailed information.";
+                echo "</div>";
             }
         }
-        echo "</div>";
+        
     } catch (Exception $e) {
-        echo "<div class='warning'>";
-        echo "<strong>⚠️ WARNING:</strong> Limited user access: " . htmlspecialchars($e->getMessage()) . "<br>";
-        echo "This might be due to capability restrictions, but the dashboard should still work.";
+        echo "<h4>2a. User API Diagnostics</h4>";
+        echo "<div class='error'>";
+        echo "<strong>❌ ERROR:</strong> " . htmlspecialchars($e->getMessage()) . "<br>";
+        
+        // Provide specific guidance based on error type
+        if (strpos($e->getMessage(), 'Invalid parameter') !== false) {
+            echo "<br><strong>🔧 Specific Issue:</strong> Invalid parameter in user API call<br>";
+            echo "<strong>Likely Causes:</strong><br>";
+            echo "• Web service user lacks 'moodle/user:viewalldetails' capability<br>";
+            echo "• Web service user lacks 'moodle/user:viewdetails' capability<br>";
+            echo "• User profile access is restricted in your Moodle configuration<br>";
+            echo "<br><strong>Solutions:</strong><br>";
+            echo "1. Go to Site Administration → Users → Permissions → Define roles<br>";
+            echo "2. Edit your web service user role<br>";
+            echo "3. Add these capabilities: moodle/user:viewalldetails, moodle/user:viewdetails<br>";
+            echo "4. Or create a custom role with user viewing permissions<br>";
+        }
         echo "</div>";
+        
+        // Test alternative user access
+        echo "<h4>2b. Alternative User Count Method</h4>";
+        try {
+            $userCount = $apiClient->getUserCount();
+            if ($userCount > 0) {
+                echo "<div class='success'>";
+                echo "<strong>✅ PARTIAL SUCCESS:</strong> Can get basic user count<br>";
+                echo "<strong>User Count:</strong> " . $userCount . "<br>";
+                echo "<strong>Note:</strong> Dashboard will work with limited user analytics<br>";
+                echo "</div>";
+            }
+        } catch (Exception $e2) {
+            echo "<div class='error'>";
+            echo "<strong>❌ FAILED:</strong> Cannot access any user information<br>";
+            echo "</div>";
+        }
     }
     
     // Test 3: Get courses

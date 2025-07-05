@@ -30,87 +30,128 @@ class AnalyticsService {
     }
     
     /**
-     * Get dashboard overview data
+     * Get dashboard overview data - with fallbacks
      */
     public function getDashboardOverview() {
         return $this->getCachedData('overview', function() {
             $siteInfo = $this->apiClient->getSiteInfo();
-            $users = $this->apiClient->getUsers();
+        
+            // Try to get user count with fallbacks
+            $totalUsers = 0;
+            $activeUsers = 0;
+        
+            try {
+                $users = $this->apiClient->getUsers();
+                $userList = $users['users'] ?? [];
+                $totalUsers = count($userList);
+                $activeUsers = $this->countActiveUsers($userList);
+            } catch (Exception $e) {
+                // Fallback: try alternative user count method
+                $totalUsers = $this->apiClient->getUserCount();
+                $activeUsers = 0; // Can't calculate without user details
+            }
+        
             $courses = $this->apiClient->getCourses();
-            
+        
             return [
                 'site_name' => $siteInfo['sitename'] ?? 'SOMAS Learning Platform',
                 'moodle_version' => $siteInfo['release'] ?? 'Unknown',
-                'total_users' => count($users['users'] ?? []),
+                'total_users' => $totalUsers,
                 'total_courses' => count($courses),
-                'active_users' => $this->countActiveUsers($users['users'] ?? []),
-                'last_updated' => date('Y-m-d H:i:s')
+                'active_users' => $activeUsers,
+                'last_updated' => date('Y-m-d H:i:s'),
+                'user_access_limited' => $totalUsers > 0 && $activeUsers === 0
             ];
         });
     }
     
     /**
-     * Get user statistics
+     * Get user statistics - with graceful degradation
      */
     public function getUserStatistics() {
         return $this->getCachedData('user_stats', function() {
-            $users = $this->apiClient->getUsers();
-            $userList = $users['users'] ?? [];
+            try {
+                $users = $this->apiClient->getUsers();
+                $userList = $users['users'] ?? [];
             
-            $stats = [
-                'total' => count($userList),
-                'active_last_week' => 0,
-                'active_last_month' => 0,
-                'never_logged_in' => 0,
-                'by_role' => [],
-                'recent_registrations' => [],
-                'top_active_users' => []
-            ];
+                // Full user analytics if we have access
+                return $this->calculateFullUserStats($userList);
             
-            $weekAgo = time() - (7 * 24 * 60 * 60);
-            $monthAgo = time() - (30 * 24 * 60 * 60);
-            
-            foreach ($userList as $user) {
-                // Skip admin and guest users
-                if ($user['id'] <= 2) continue;
-                
-                // Count active users
-                if (isset($user['lastaccess']) && $user['lastaccess'] > 0) {
-                    if ($user['lastaccess'] > $weekAgo) {
-                        $stats['active_last_week']++;
-                    }
-                    if ($user['lastaccess'] > $monthAgo) {
-                        $stats['active_last_month']++;
-                        
-                        // Track top active users
-                        $stats['top_active_users'][] = [
-                            'name' => $user['fullname'],
-                            'email' => $user['email'],
-                            'last_access' => date('Y-m-d H:i', $user['lastaccess'])
-                        ];
-                    }
-                } else {
-                    $stats['never_logged_in']++;
+            } catch (Exception $e) {
+                // Limited user analytics
+                return [
+                    'total' => $this->apiClient->getUserCount(),
+                    'active_last_week' => 'N/A - Limited Access',
+                    'active_last_month' => 'N/A - Limited Access',
+                    'never_logged_in' => 'N/A - Limited Access',
+                    'by_role' => [],
+                    'recent_registrations' => [],
+                    'top_active_users' => [],
+                    'access_limited' => true,
+                    'error_message' => 'Limited user data access due to API restrictions'
+                ];
+            }
+        });
+    }
+
+    /**
+     * Calculate full user statistics when we have access
+     */
+    private function calculateFullUserStats($userList) {
+        $stats = [
+            'total' => count($userList),
+            'active_last_week' => 0,
+            'active_last_month' => 0,
+            'never_logged_in' => 0,
+            'by_role' => [],
+            'recent_registrations' => [],
+            'top_active_users' => [],
+            'access_limited' => false
+        ];
+    
+        $weekAgo = time() - (7 * 24 * 60 * 60);
+        $monthAgo = time() - (30 * 24 * 60 * 60);
+    
+        foreach ($userList as $user) {
+            // Skip admin and guest users
+            if ($user['id'] <= 2) continue;
+        
+            // Count active users
+            if (isset($user['lastaccess']) && $user['lastaccess'] > 0) {
+                if ($user['lastaccess'] > $weekAgo) {
+                    $stats['active_last_week']++;
                 }
+                if ($user['lastaccess'] > $monthAgo) {
+                    $stats['active_last_month']++;
                 
-                // Recent registrations (last 30 days)
-                if (isset($user['firstaccess']) && $user['firstaccess'] > $monthAgo) {
-                    $stats['recent_registrations'][] = [
+                    // Track top active users
+                    $stats['top_active_users'][] = [
                         'name' => $user['fullname'],
                         'email' => $user['email'],
-                        'date' => date('Y-m-d', $user['firstaccess'])
+                        'last_access' => date('Y-m-d H:i', $user['lastaccess'])
                     ];
                 }
+            } else {
+                $stats['never_logged_in']++;
             }
-            
-            // Sort top active users by last access
-            usort($stats['top_active_users'], function($a, $b) {
-                return strtotime($b['last_access']) - strtotime($a['last_access']);
-            });
-            $stats['top_active_users'] = array_slice($stats['top_active_users'], 0, 10);
-            
-            return $stats;
+        
+            // Recent registrations (last 30 days)
+            if (isset($user['firstaccess']) && $user['firstaccess'] > $monthAgo) {
+                $stats['recent_registrations'][] = [
+                    'name' => $user['fullname'],
+                    'email' => $user['email'],
+                    'date' => date('Y-m-d', $user['firstaccess'])
+                ];
+            }
+        }
+    
+        // Sort top active users by last access
+        usort($stats['top_active_users'], function($a, $b) {
+            return strtotime($b['last_access']) - strtotime($a['last_access']);
         });
+        $stats['top_active_users'] = array_slice($stats['top_active_users'], 0, 10);
+    
+        return $stats;
     }
     
     /**
