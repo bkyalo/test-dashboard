@@ -458,6 +458,11 @@ function showSection(sectionId) {
       targetSection.style.opacity = "1"
       targetSection.style.transform = "translateY(0)"
     }, 50)
+
+    // Initialize PDC pagination if showing short-courses section
+    if (sectionId === "short-courses") {
+      setTimeout(initializePDCPagination, 100)
+    }
   }
 
   // Update active nav link
@@ -638,3 +643,126 @@ style.textContent = `
   }
 `
 document.head.appendChild(style)
+
+// PDC Courses Pagination
+let pdcCurrentPage = 1
+const pdcCoursesPerPage = 10
+let pdcCoursesData = []
+
+function initializePDCPagination() {
+  const dataElement = document.getElementById("pdc-courses-data")
+  if (dataElement) {
+    try {
+      pdcCoursesData = JSON.parse(dataElement.textContent)
+      updatePDCTable()
+      updatePDCPaginationControls()
+    } catch (e) {
+      console.error("Error parsing PDC courses data:", e)
+    }
+  }
+}
+
+function changePDCPage(direction) {
+  const totalPages = Math.ceil(pdcCoursesData.length / pdcCoursesPerPage)
+
+  if (direction === 1 && pdcCurrentPage < totalPages) {
+    pdcCurrentPage++
+  } else if (direction === -1 && pdcCurrentPage > 1) {
+    pdcCurrentPage--
+  }
+
+  updatePDCTable()
+  updatePDCPaginationControls()
+}
+
+function updatePDCTable() {
+  const tableBody = document.getElementById("pdc-courses-table")
+  if (!tableBody || pdcCoursesData.length === 0) return
+
+  const startIndex = (pdcCurrentPage - 1) * pdcCoursesPerPage
+  const endIndex = Math.min(startIndex + pdcCoursesPerPage, pdcCoursesData.length)
+  const currentPageData = pdcCoursesData.slice(startIndex, endIndex)
+
+  let html = ""
+  currentPageData.forEach((course) => {
+    const statusBadge = course.visible
+      ? '<span class="status-badge online"><i class="fas fa-eye"></i> Visible</span>'
+      : '<span class="status-badge offline"><i class="fas fa-eye-slash"></i> Hidden</span>'
+
+    const createdDate = course.created > 0 ? new Date(course.created * 1000).toLocaleDateString() : "Unknown"
+
+    html += `
+      <tr>
+        <td>${escapeHtml(course.name)}</td>
+        <td><code>${escapeHtml(course.shortname)}</code></td>
+        <td><span class="badge">${course.enrollments.toLocaleString()}</span></td>
+        <td>${statusBadge}</td>
+        <td>${createdDate}</td>
+        <td>
+          <a href="${window.MOODLE_URL || ""}/course/view.php?id=${course.id}" 
+             target="_blank" 
+             class="action-btn view-btn" 
+             title="View Course">
+            <i class="fas fa-external-link-alt"></i> View
+          </a>
+        </td>
+      </tr>
+    `
+  })
+
+  tableBody.innerHTML = html
+}
+
+function updatePDCPaginationControls() {
+  const totalPages = Math.ceil(pdcCoursesData.length / pdcCoursesPerPage)
+  const startIndex = (pdcCurrentPage - 1) * pdcCoursesPerPage + 1
+  const endIndex = Math.min(pdcCurrentPage * pdcCoursesPerPage, pdcCoursesData.length)
+
+  // Update pagination info
+  const startElement = document.getElementById("pdc-start")
+  const endElement = document.getElementById("pdc-end")
+  const currentPageElement = document.getElementById("pdc-current-page")
+  const totalPagesElement = document.getElementById("pdc-total-pages")
+
+  if (startElement) startElement.textContent = startIndex
+  if (endElement) endElement.textContent = endIndex
+  if (currentPageElement) currentPageElement.textContent = pdcCurrentPage
+  if (totalPagesElement) totalPagesElement.textContent = totalPages
+
+  // Update button states
+  const prevButtons = ["pdc-prev", "pdc-prev-bottom"]
+  const nextButtons = ["pdc-next", "pdc-next-bottom"]
+
+  prevButtons.forEach((id) => {
+    const btn = document.getElementById(id)
+    if (btn) {
+      btn.disabled = pdcCurrentPage <= 1
+      btn.classList.toggle("disabled", pdcCurrentPage <= 1)
+    }
+  })
+
+  nextButtons.forEach((id) => {
+    const btn = document.getElementById(id)
+    if (btn) {
+      btn.disabled = pdcCurrentPage >= totalPages
+      btn.classList.toggle("disabled", pdcCurrentPage >= totalPages)
+    }
+  })
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div")
+  div.textContent = text
+  return div.innerHTML
+}
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", () => {
+  // Set MOODLE_URL for JavaScript
+  window.MOODLE_URL = "<?php echo MOODLE_URL; ?>"
+
+  // Initialize pagination if short-courses section is visible
+  if (document.getElementById("short-courses").style.display !== "none") {
+    initializePDCPagination()
+  }
+})

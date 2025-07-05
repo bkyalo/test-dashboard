@@ -279,6 +279,7 @@ class AnalyticsService {
                 'pdc_courses_with_enrollments' => 0,
                 'average_pdc_enrollments' => 0,
                 'popular_pdc_courses' => [],
+                'all_pdc_courses' => [],
                 'empty_pdc_courses_list' => [],
                 'pdc_course_categories' => [],
                 'empty_pdc_courses' => 0,
@@ -293,6 +294,7 @@ class AnalyticsService {
             
             $totalEnrollments = 0;
             $courseEnrollments = [];
+            $allPDCCourses = [];
             
             foreach ($pdcCourses as $course) {
                 if (($course['id'] ?? 0) == 1) continue; // Skip site course
@@ -343,10 +345,12 @@ class AnalyticsService {
                             'pdc_type' => $pdcType,
                             'visible' => $course['visible'] ?? 1,
                             'startdate' => $course['startdate'] ?? 0,
-                            'enddate' => $course['enddate'] ?? 0
+                            'enddate' => $course['enddate'] ?? 0,
+                            'created' => $course['timecreated'] ?? 0
                         ];
                         
-                        $courseEnrollments[] = $courseData;
+                        // Add to all PDC courses list
+                        $allPDCCourses[] = $courseData;
                         
                         // Try to get completion data
                         try {
@@ -450,6 +454,12 @@ class AnalyticsService {
                 return $bRate <=> $aRate;
             });
             $analytics['pdc_completion_rates'] = array_slice($analytics['pdc_completion_rates'], 0, 10);
+            
+            // Sort all PDC courses by name
+            usort($allPDCCourses, function($a, $b) {
+                return strcmp($a['name'], $b['name']);
+            });
+            $analytics['all_pdc_courses'] = $allPDCCourses;
             
             return $analytics;
         });

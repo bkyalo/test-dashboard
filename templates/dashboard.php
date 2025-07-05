@@ -73,6 +73,64 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Most Popular PDC Courses in Overview -->
+        <?php if (!empty($pdcAnalytics['popular_pdc_courses'])): ?>
+        <div class="section overview-pdc-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-star section-icon"></i>
+                    Top 5 Popular PDC Courses
+                </h2>
+                <div class="section-actions">
+                    <a href="#short-courses" onclick="showSection('short-courses')" class="btn-secondary">
+                        <i class="fas fa-certificate"></i>
+                        View All PDC Courses
+                    </a>
+                </div>
+            </div>
+            
+            <div class="table-container" style="margin: 0;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-certificate"></i> Course Name</th>
+                            <th><i class="fas fa-tag"></i> Short Name</th>
+                            <th><i class="fas fa-users"></i> Enrollments</th>
+                            <th><i class="fas fa-trophy"></i> Completion Rate</th>
+                            <th><i class="fas fa-external-link-alt"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (array_slice($pdcAnalytics['popular_pdc_courses'], 0, 5) as $course): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($course['name']); ?></td>
+                            <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
+                            <td><span class="badge"><?php echo number_format($course['enrollments']); ?></span></td>
+                            <td>
+                                <?php if (isset($course['completion_rate']) && is_numeric($course['completion_rate'])): ?>
+                                    <span class="completion-rate" data-rate="<?php echo $course['completion_rate']; ?>">
+                                        <?php echo $course['completion_rate']; ?>%
+                                    </span>
+                                <?php else: ?>
+                                    <span class="completion-rate-na">N/A</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
+                                   target="_blank" 
+                                   class="action-btn view-btn" 
+                                   title="View Course">
+                                    <i class="fas fa-external-link-alt"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- User Analytics Section -->
@@ -404,13 +462,31 @@
                 <?php else: ?>
                 
                 <div class="data-section">
-                    <h3><i class="fas fa-star"></i> Most Popular PDC Courses</h3>
+                    <h3><i class="fas fa-list"></i> All PDC Courses</h3>
                     
-                    <?php if (empty($pdcAnalytics['popular_pdc_courses'])): ?>
+                    <?php if (empty($pdcAnalytics['all_pdc_courses'])): ?>
                     <div class="info" style="margin: 1rem 0;">
-                        <p><strong>No PDC course enrollment data available.</strong></p>
+                        <p><strong>No PDC course data available.</strong></p>
                     </div>
                     <?php else: ?>
+                    
+                    <!-- Pagination Controls -->
+                    <div class="pagination-controls">
+                        <div class="pagination-info">
+                            <span>Showing <strong id="pdc-start">1</strong> to <strong id="pdc-end">10</strong> of <strong><?php echo count($pdcAnalytics['all_pdc_courses']); ?></strong> PDC courses</span>
+                        </div>
+                        <div class="pagination-buttons">
+                            <button id="pdc-prev" class="pagination-btn" onclick="changePDCPage(-1)" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span class="pagination-current">
+                                Page <strong id="pdc-current-page">1</strong> of <strong id="pdc-total-pages"><?php echo ceil(count($pdcAnalytics['all_pdc_courses']) / 10); ?></strong>
+                            </span>
+                            <button id="pdc-next" class="pagination-btn" onclick="changePDCPage(1)">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                     
                     <div class="table-container">
                         <table class="data-table">
@@ -419,38 +495,37 @@
                                     <th><i class="fas fa-certificate"></i> Course Name</th>
                                     <th><i class="fas fa-tag"></i> Short Name</th>
                                     <th><i class="fas fa-users"></i> Enrollments</th>
-                                    <th><i class="fas fa-trophy"></i> Completion Rate</th>
+                                    <th><i class="fas fa-eye"></i> Status</th>
+                                    <th><i class="fas fa-calendar"></i> Created</th>
                                     <th><i class="fas fa-external-link-alt"></i> Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php foreach ($pdcAnalytics['popular_pdc_courses'] as $course): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($course['name']); ?></td>
-                                    <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
-                                    <td><span class="badge"><?php echo number_format($course['enrollments']); ?></span></td>
-                                    <td>
-                                        <?php if (isset($course['completion_rate']) && is_numeric($course['completion_rate'])): ?>
-                                            <span class="completion-rate" data-rate="<?php echo $course['completion_rate']; ?>">
-                                                <?php echo $course['completion_rate']; ?>%
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="completion-rate-na">N/A</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
-                                           target="_blank" 
-                                           class="action-btn view-btn" 
-                                           title="View Course">
-                                            <i class="fas fa-external-link-alt"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            <tbody id="pdc-courses-table">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Bottom Pagination -->
+                    <div class="pagination-controls">
+                        <div class="pagination-summary">
+                            <span>Total PDC Courses: <strong><?php echo count($pdcAnalytics['all_pdc_courses']); ?></strong></span>
+                        </div>
+                        <div class="pagination-buttons">
+                            <button class="pagination-btn" onclick="changePDCPage(-1)" id="pdc-prev-bottom" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button class="pagination-btn" onclick="changePDCPage(1)" id="pdc-next-bottom">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden data for JavaScript -->
+                    <script type="application/json" id="pdc-courses-data">
+                        <?php echo json_encode($pdcAnalytics['all_pdc_courses']); ?>
+                    </script>
+                    
                     <?php endif; ?>
                 </div>
 
