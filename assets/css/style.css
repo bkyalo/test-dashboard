@@ -1,6 +1,6 @@
-/* SOMAS Analytics Dashboard - Futuristic Design */
+/* FontAwesome 5 - Fixed Import */
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap");
 
 /* Reset and Base Styles */
 * {
@@ -1084,4 +1084,26 @@ body::before {
   .sidebar-overlay.active {
     display: block;
   }
+}
+
+/* Icon Fix */
+.fas,
+.far,
+.fab,
+.fal {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands", "Font Awesome 5 Pro" !important;
+  font-weight: 900;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+}
+
+.far {
+  font-weight: 400;
+}
+
+.fab {
+  font-family: "Font Awesome 5 Brands" !important;
+  font-weight: 400;
 }
