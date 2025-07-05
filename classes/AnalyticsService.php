@@ -364,6 +364,7 @@ class AnalyticsService {
                             $analytics['pdc_completion_rates'][] = [
                                 'course' => $course['fullname'],
                                 'shortname' => $course['shortname'],
+                                'course_id' => $course['id'],
                                 'enrollments' => $enrollmentCount,
                                 'completions' => $completionCount,
                                 'completion_rate' => $completionRate

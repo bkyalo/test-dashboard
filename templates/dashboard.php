@@ -418,11 +418,9 @@
                                 <tr>
                                     <th><i class="fas fa-certificate"></i> Course Name</th>
                                     <th><i class="fas fa-tag"></i> Short Name</th>
-                                    <th><i class="fas fa-code"></i> PDC Type</th>
                                     <th><i class="fas fa-users"></i> Enrollments</th>
                                     <th><i class="fas fa-trophy"></i> Completion Rate</th>
-                                    <th><i class="fas fa-folder"></i> Category</th>
-                                    <th><i class="fas fa-eye"></i> Status</th>
+                                    <th><i class="fas fa-external-link-alt"></i> Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -430,12 +428,6 @@
                                 <tr>
                                     <td><?php echo htmlspecialchars($course['name']); ?></td>
                                     <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
-                                    <td>
-                                        <span class="pdc-type-badge">
-                                            <i class="fas fa-tag"></i>
-                                            <?php echo htmlspecialchars($course['pdc_type']); ?>
-                                        </span>
-                                    </td>
                                     <td><span class="badge"><?php echo number_format($course['enrollments']); ?></span></td>
                                     <td>
                                         <?php if (isset($course['completion_rate']) && is_numeric($course['completion_rate'])): ?>
@@ -447,27 +439,18 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <span class="category-tag">
-                                            <i class="fas fa-folder"></i>
-                                            <?php echo htmlspecialchars($course['category'] ?? 'Uncategorized'); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if ($course['visible']): ?>
-                                            <span class="status-badge online">
-                                                <i class="fas fa-eye"></i> Visible
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="status-badge offline">
-                                                <i class="fas fa-eye-slash"></i> Hidden
-                                            </span>
-                                        <?php endif; ?>
+                                        <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
+                                           target="_blank" 
+                                           class="action-btn view-btn" 
+                                           title="View Course">
+                                            <i class="fas fa-external-link-alt"></i> View
+                                        </a>
                                     </td>
                                 </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
                     <?php endif; ?>
                 </div>
 
@@ -483,6 +466,7 @@
                                     <th><i class="fas fa-users"></i> Enrollments</th>
                                     <th><i class="fas fa-check-circle"></i> Completions</th>
                                     <th><i class="fas fa-percentage"></i> Completion Rate</th>
+                                    <th><i class="fas fa-external-link-alt"></i> Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -500,6 +484,14 @@
                                         <?php else: ?>
                                             <span class="completion-rate-na">N/A</span>
                                         <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $completion['course_id'] ?? '#'; ?>" 
+                                           target="_blank" 
+                                           class="action-btn view-btn" 
+                                           title="View Course">
+                                            <i class="fas fa-external-link-alt"></i> View
+                                        </a>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -522,11 +514,9 @@
                 <tr>
                     <th><i class="fas fa-certificate"></i> Course Name</th>
                     <th><i class="fas fa-tag"></i> Short Name</th>
-                    <th><i class="fas fa-code"></i> PDC Type</th>
-                    <th><i class="fas fa-folder"></i> Category</th>
                     <th><i class="fas fa-eye"></i> Status</th>
                     <th><i class="fas fa-calendar"></i> Created</th>
-                    <th><i class="fas fa-tools"></i> Actions</th>
+                    <th><i class="fas fa-external-link-alt"></i> Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -534,18 +524,6 @@
                 <tr class="empty-course-row">
                     <td><?php echo htmlspecialchars($course['name']); ?></td>
                     <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
-                    <td>
-                        <span class="pdc-type-badge">
-                            <i class="fas fa-tag"></i>
-                            <?php echo htmlspecialchars($course['pdc_type']); ?>
-                        </span>
-                    </td>
-                    <td>
-                        <span class="category-tag">
-                            <i class="fas fa-folder"></i>
-                            <?php echo htmlspecialchars($course['category'] ?? 'Uncategorized'); ?>
-                        </span>
-                    </td>
                     <td>
                         <?php if ($course['visible']): ?>
                             <span class="status-badge online">
@@ -567,23 +545,12 @@
                         ?>
                     </td>
                     <td>
-                        <div class="action-buttons">
-                            <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
-                               target="_blank" 
-                               class="action-btn view-btn" 
-                               title="View Course">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
-                            <?php if ($course['visible']): ?>
-                                <span class="action-btn promote-btn" title="Course is visible - ready for promotion">
-                                    <i class="fas fa-bullhorn"></i>
-                                </span>
-                            <?php else: ?>
-                                <span class="action-btn hidden-btn" title="Course is hidden - may need to be published">
-                                    <i class="fas fa-eye-slash"></i>
-                                </span>
-                            <?php endif; ?>
-                        </div>
+                        <a href="<?php echo MOODLE_URL; ?>/course/view.php?id=<?php echo $course['id']; ?>" 
+                           target="_blank" 
+                           class="action-btn view-btn" 
+                           title="View Course">
+                            <i class="fas fa-external-link-alt"></i> View
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
