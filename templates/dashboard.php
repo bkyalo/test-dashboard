@@ -259,9 +259,20 @@
             </div>
 
             <div id="course-details" class="collapsible-content">
-                <?php if (!empty($courseAnalytics['popular_courses'])): ?>
                 <div class="data-section">
                     <h3><i class="fas fa-star"></i> Most Popular Courses</h3>
+                    
+                    <?php if (empty($courseAnalytics['popular_courses'])): ?>
+                    <div class="info" style="margin: 1rem 0;">
+                        <p><strong>No course data available.</strong> This could be due to:</p>
+                        <ul>
+                            <li>No courses with enrollments</li>
+                            <li>Limited API access to course enrollment data</li>
+                            <li>All courses are empty or hidden</li>
+                        </ul>
+                    </div>
+                    <?php else: ?>
+                    
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -279,7 +290,12 @@
                                     <td><?php echo htmlspecialchars($course['name']); ?></td>
                                     <td><code><?php echo htmlspecialchars($course['shortname']); ?></code></td>
                                     <td><span class="badge"><?php echo number_format($course['enrollments']); ?></span></td>
-                                    <td><?php echo htmlspecialchars($course['category']); ?></td>
+                                    <td>
+                                        <span class="category-tag">
+                                            <i class="fas fa-folder"></i>
+                                            <?php echo htmlspecialchars($course['category'] ?? 'Uncategorized'); ?>
+                                        </span>
+                                    </td>
                                     <td>
                                         <?php if ($course['visible']): ?>
                                             <span class="status-badge online">
@@ -296,8 +312,8 @@
                             </tbody>
                         </table>
                     </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
 
                 <?php if (!empty($courseAnalytics['course_categories'])): ?>
                 <div class="data-section">

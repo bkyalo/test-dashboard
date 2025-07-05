@@ -186,28 +186,49 @@ class AnalyticsService {
                         $analytics['courses_with_enrollments']++;
                         $totalEnrollments += $enrollmentCount;
                         
+                        // Fix category name access - try multiple possible fields
+                        $categoryName = 'Uncategorized';
+                        if (isset($course['categoryname']) && !empty($course['categoryname'])) {
+                            $categoryName = $course['categoryname'];
+                        } elseif (isset($course['category']) && !empty($course['category'])) {
+                            $categoryName = $course['category'];
+                        } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
+                            // Try to get category name from category ID
+                            try {
+                                $categories = $this->apiClient->getCourseCategories();
+                                foreach ($categories as $cat) {
+                                    if ($cat['id'] == $course['categoryid']) {
+                                        $categoryName = $cat['name'];
+                                        break;
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                // If category lookup fails, use category ID
+                                $categoryName = 'Category ' . $course['categoryid'];
+                            }
+                        }
+                        
                         $courseEnrollments[] = [
                             'id' => $course['id'],
                             'name' => $course['fullname'],
                             'shortname' => $course['shortname'],
                             'enrollments' => $enrollmentCount,
-                            'category' => $course['categoryname'] ?? 'Uncategorized',
+                            'category' => $categoryName,
                             'visible' => $course['visible'] ?? 1
                         ];
                     } else {
                         $analytics['empty_courses']++;
                     }
                     
-                    // Category statistics
-                    $category = $course['categoryname'] ?? 'Uncategorized';
-                    if (!isset($analytics['course_categories'][$category])) {
-                        $analytics['course_categories'][$category] = [
+                    // Category statistics - use the same category name logic
+                    if (!isset($analytics['course_categories'][$categoryName])) {
+                        $analytics['course_categories'][$categoryName] = [
                             'count' => 0,
                             'enrollments' => 0
                         ];
                     }
-                    $analytics['course_categories'][$category]['count']++;
-                    $analytics['course_categories'][$category]['enrollments'] += $enrollmentCount;
+                    $analytics['course_categories'][$categoryName]['count']++;
+                    $analytics['course_categories'][$categoryName]['enrollments'] += $enrollmentCount;
                     
                 } catch (Exception $e) {
                     // Skip courses we can't access

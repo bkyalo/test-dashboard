@@ -150,6 +150,23 @@ class MoodleApiClient {
     }
     
     /**
+     * Get courses with detailed information
+     */
+    public function getCoursesDetailed() {
+        try {
+            // Try to get courses with additional fields
+            return $this->call('core_course_get_courses', [
+                'options' => [
+                    'ids' => []  // Empty array gets all courses
+                ]
+            ]);
+        } catch (Exception $e) {
+            // Fallback to basic course call
+            return $this->getCourses();
+        }
+    }
+    
+    /**
      * Get course enrollments
      */
     public function getCourseEnrollments($courseId) {
@@ -181,10 +198,15 @@ class MoodleApiClient {
     }
     
     /**
-     * Get course categories
+     * Get course categories with error handling
      */
     public function getCourseCategories() {
-        return $this->call('core_course_get_categories');
+        try {
+            return $this->call('core_course_get_categories');
+        } catch (Exception $e) {
+            // Return empty array if categories can't be accessed
+            return [];
+        }
     }
 }
 ?>

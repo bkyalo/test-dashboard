@@ -859,6 +859,43 @@ body::before {
   gap: 0.5rem;
 }
 
+/* Category tag styling */
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--info-color);
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.category-tag i {
+  font-size: 0.8rem;
+}
+
+/* Debug info styling */
+.debug-info {
+  background: rgba(255, 170, 0, 0.1);
+  border: 1px solid var(--warning-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin: 1rem 0;
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.debug-info pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+  color: var(--secondary-color);
+}
+
 /* Error and Warning Styles */
 .error {
   background: rgba(255, 51, 102, 0.2);
