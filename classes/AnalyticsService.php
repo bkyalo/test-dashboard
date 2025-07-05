@@ -293,6 +293,7 @@ class AnalyticsService {
             }
             
             $totalEnrollments = 0;
+            $allPDCCourses = [];
             $courseEnrollments = [];
             $allPDCCourses = [];
             
@@ -419,6 +420,20 @@ class AnalyticsService {
                             'enddate' => $course['enddate'] ?? 0,
                             'created' => $course['timecreated'] ?? 0
                         ];
+                        // Add empty course to all PDC courses list
+                        $emptyPDCCourse = [
+                            'id' => $course['id'] ?? 0,
+                            'name' => $course['fullname'] ?? 'Unknown Course',
+                            'shortname' => $course['shortname'] ?? 'N/A',
+                            'enrollments' => 0,
+                            'category' => $categoryName,
+                            'pdc_type' => $pdcType,
+                            'visible' => $course['visible'] ?? 1,
+                            'startdate' => $course['startdate'] ?? 0,
+                            'enddate' => $course['enddate'] ?? 0,
+                            'created' => $course['timecreated'] ?? 0
+                        ];
+                        $allPDCCourses[] = $emptyPDCCourse;
                     }
                     
                     // Category statistics for PDC courses
