@@ -5,8 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo DASHBOARD_TITLE; ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <meta name="theme-color" content="#0a0e27">
+    <style>
+/* Quicksand Font Override for Live Dashboard */
+body, .nav-text, .card-title, .metric-subtitle, .stat-label, .info-item label, 
+.data-table td, .category-header h4, .section-subtitle, p, span, div {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+/* Keep Orbitron for specific futuristic elements */
+.sidebar-title, .header-title, .section-title, .metric, .stat-value, 
+.nav-section-title, .stat-number {
+    font-family: 'Orbitron', monospace !important;
+}
+
+/* Enhanced readability with Quicksand */
+.nav-text {
+    font-weight: 500;
+}
+
+.card-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.metric-subtitle {
+    font-weight: 400;
+}
+
+.data-table th {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 700;
+}
+
+.data-table td {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 400;
+}
+
+.info-item label {
+    font-weight: 600;
+}
+
+.info-item span {
+    font-weight: 500;
+}
+
+/* Button text with Quicksand */
+.btn, .btn-secondary {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 600;
+}
+
+/* Status and badge text */
+.status-badge, .badge, .nav-badge {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 600;
+}
+
+/* Warning and error text */
+.warning, .error, .info {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+.warning h4, .error h2, .info h4 {
+    font-family: 'Orbitron', monospace !important;
+}
+
+/* Table headers keep Quicksand but with proper weight */
+.data-table th {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Category cards */
+.category-card {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+.category-stat .stat-label {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 500;
+}
+
+/* System status */
+.status-label, .status-value {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+.status-label {
+    font-weight: 600;
+}
+
+.status-value {
+    font-weight: 700;
+}
+
+/* Footer text */
+.footer-content, .footer-bottom {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+/* Enhanced contrast for better readability */
+.nav-text, .card-title, .metric-subtitle {
+    color: var(--light-color);
+}
+
+/* Improved button typography */
+.btn {
+    letter-spacing: 0.5px;
+}
+
+.btn-secondary {
+    letter-spacing: 0.3px;
+}
+</style>
 </head>
 <body>
     <!-- Mobile Menu Toggle -->

@@ -6,6 +6,9 @@
     <title>SOMAS Analytics Dashboard - Demo</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <meta name="theme-color" content="#0a0e27">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Mobile Menu Toggle -->
@@ -645,5 +648,53 @@
         `;
         document.head.appendChild(demoStyle);
     </script>
+    <style>
+/* Quicksand Font Override for Demo */
+body, .nav-text, .card-title, .metric-subtitle, .stat-label, .info-item label, 
+.data-table td, .category-header h4, .section-subtitle, p, span, div {
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+/* Keep Orbitron for specific futuristic elements */
+.sidebar-title, .header-title, .section-title, .metric, .stat-value, 
+.nav-section-title, .stat-number {
+    font-family: 'Orbitron', monospace !important;
+}
+
+/* Enhanced readability with Quicksand */
+.nav-text {
+    font-weight: 500;
+}
+
+.card-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.metric-subtitle {
+    font-weight: 400;
+}
+
+.data-table th {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 700;
+}
+
+.info-item label {
+    font-weight: 600;
+}
+
+/* Button text with Quicksand */
+.btn, .btn-secondary {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 600;
+}
+
+/* Status and badge text */
+.status-badge, .badge, .nav-badge {
+    font-family: 'Quicksand', sans-serif !important;
+    font-weight: 600;
+}
+</style>
 </body>
 </html>
