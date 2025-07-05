@@ -306,52 +306,55 @@ class AnalyticsService {
                     
                     $analytics['total_pdc_enrollments'] += $enrollmentCount;
                     
+                    // Get category name
+                    $categoryName = 'Uncategorized';
+                    if (isset($course['categoryname']) && !empty($course['categoryname'])) {
+                        $categoryName = $course['categoryname'];
+                    } elseif (isset($course['category']) && !empty($course['category'])) {
+                        $categoryName = $course['category'];
+                    } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
+                        try {
+                            $categories = $this->apiClient->getCourseCategories();
+                            foreach ($categories as $cat) {
+                                if (($cat['id'] ?? 0) == $course['categoryid']) {
+                                    $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
+                                    break;
+                                }
+                            }
+                        } catch (Exception $e) {
+                            $categoryName = 'Category ' . $course['categoryid'];
+                        }
+                    }
+                    
+                    // Extract PDC course type from shortname (e.g., PDC-IT, PDC-BUS)
+                    $pdcType = 'General';
+                    $shortname = $course['shortname'] ?? '';
+                    if (preg_match('/^PDC-([A-Z]+)/', $shortname, $matches)) {
+                        $pdcType = $matches[1];
+                    }
+                    
+                    $courseData = [
+                        'id' => $course['id'] ?? 0,
+                        'name' => $course['fullname'] ?? 'Unknown Course',
+                        'shortname' => $course['shortname'] ?? 'N/A',
+                        'enrollments' => $enrollmentCount,
+                        'category' => $categoryName,
+                        'pdc_type' => $pdcType,
+                        'visible' => $course['visible'] ?? 1,
+                        'startdate' => $course['startdate'] ?? 0,
+                        'enddate' => $course['enddate'] ?? 0,
+                        'created' => $course['timecreated'] ?? 0
+                    ];
+                    
+                    // Add to all PDC courses list
+                    $allPDCCourses[] = $courseData;
+                    
                     if ($enrollmentCount > 0) {
                         $analytics['pdc_courses_with_enrollments']++;
                         $totalEnrollments += $enrollmentCount;
                         
-                        // Get category name
-                        $categoryName = 'Uncategorized';
-                        if (isset($course['categoryname']) && !empty($course['categoryname'])) {
-                            $categoryName = $course['categoryname'];
-                        } elseif (isset($course['category']) && !empty($course['category'])) {
-                            $categoryName = $course['category'];
-                        } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
-                            try {
-                                $categories = $this->apiClient->getCourseCategories();
-                                foreach ($categories as $cat) {
-                                    if (($cat['id'] ?? 0) == $course['categoryid']) {
-                                        $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
-                                        break;
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                $categoryName = 'Category ' . $course['categoryid'];
-                            }
-                        }
-                        
-                        // Extract PDC course type from shortname (e.g., PDC-IT, PDC-BUS)
-                        $pdcType = 'General';
-                        $shortname = $course['shortname'] ?? '';
-                        if (preg_match('/^PDC-([A-Z]+)/', $shortname, $matches)) {
-                            $pdcType = $matches[1];
-                        }
-                        
-                        $courseData = [
-                            'id' => $course['id'] ?? 0,
-                            'name' => $course['fullname'] ?? 'Unknown Course',
-                            'shortname' => $course['shortname'] ?? 'N/A',
-                            'enrollments' => $enrollmentCount,
-                            'category' => $categoryName,
-                            'pdc_type' => $pdcType,
-                            'visible' => $course['visible'] ?? 1,
-                            'startdate' => $course['startdate'] ?? 0,
-                            'enddate' => $course['enddate'] ?? 0,
-                            'created' => $course['timecreated'] ?? 0
-                        ];
-                        
-                        // Add to all PDC courses list
-                        $allPDCCourses[] = $courseData;
+                        // Add to popular courses array for sorting
+                        $courseEnrollments[] = $courseData;
                         
                         // Try to get completion data
                         try {
@@ -366,6 +369,10 @@ class AnalyticsService {
                             $courseData['completion_rate'] = $completionRate;
                             $courseData['completions'] = $completionCount;
                             
+                            // Update the course data in courseEnrollments array
+                            $courseEnrollments[count($courseEnrollments) - 1]['completion_rate'] = $completionRate;
+                            $courseEnrollments[count($courseEnrollments) - 1]['completions'] = $completionCount;
+                            
                             $analytics['pdc_completion_rates'][] = [
                                 'course' => $course['fullname'],
                                 'shortname' => $course['shortname'],
@@ -377,37 +384,13 @@ class AnalyticsService {
                         } catch (Exception $e) {
                             $courseData['completion_rate'] = 'N/A';
                             $courseData['completions'] = 'N/A';
+                            // Update the course data in courseEnrollments array
+                            $courseEnrollments[count($courseEnrollments) - 1]['completion_rate'] = 'N/A';
+                            $courseEnrollments[count($courseEnrollments) - 1]['completions'] = 'N/A';
                         }
                         
                     } else {
                         $analytics['empty_pdc_courses']++;
-                        
-                        // Add to empty courses list with details
-                        $categoryName = 'Uncategorized';
-                        if (isset($course['categoryname']) && !empty($course['categoryname'])) {
-                            $categoryName = $course['categoryname'];
-                        } elseif (isset($course['category']) && !empty($course['category'])) {
-                            $categoryName = $course['category'];
-                        } elseif (isset($course['categoryid']) && $course['categoryid'] > 0) {
-                            try {
-                                $categories = $this->apiClient->getCourseCategories();
-                                foreach ($categories as $cat) {
-                                    if (($cat['id'] ?? 0) == $course['categoryid']) {
-                                        $categoryName = $cat['name'] ?? 'Category ' . $course['categoryid'];
-                                        break;
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                $categoryName = 'Category ' . $course['categoryid'];
-                            }
-                        }
-                        
-                        // Extract PDC course type from shortname
-                        $pdcType = 'General';
-                        $shortname = $course['shortname'] ?? '';
-                        if (preg_match('/^PDC-([A-Z]+)/', $shortname, $matches)) {
-                            $pdcType = $matches[1];
-                        }
                         
                         $analytics['empty_pdc_courses_list'][] = [
                             'id' => $course['id'] ?? 0,
@@ -420,20 +403,6 @@ class AnalyticsService {
                             'enddate' => $course['enddate'] ?? 0,
                             'created' => $course['timecreated'] ?? 0
                         ];
-                        // Add empty course to all PDC courses list
-                        $emptyPDCCourse = [
-                            'id' => $course['id'] ?? 0,
-                            'name' => $course['fullname'] ?? 'Unknown Course',
-                            'shortname' => $course['shortname'] ?? 'N/A',
-                            'enrollments' => 0,
-                            'category' => $categoryName,
-                            'pdc_type' => $pdcType,
-                            'visible' => $course['visible'] ?? 1,
-                            'startdate' => $course['startdate'] ?? 0,
-                            'enddate' => $course['enddate'] ?? 0,
-                            'created' => $course['timecreated'] ?? 0
-                        ];
-                        $allPDCCourses[] = $emptyPDCCourse;
                     }
                     
                     // Category statistics for PDC courses
@@ -451,16 +420,16 @@ class AnalyticsService {
                     continue;
                 }
             }
-            
+
             if ($analytics['pdc_courses_with_enrollments'] > 0) {
                 $analytics['average_pdc_enrollments'] = round($totalEnrollments / $analytics['pdc_courses_with_enrollments'], 1);
             }
-            
-            // Sort by enrollments and get top 10
+
+            // Sort by enrollments and get popular courses
             usort($courseEnrollments, function($a, $b) {
                 return $b['enrollments'] - $a['enrollments'];
             });
-            $analytics['popular_pdc_courses'] = array_slice($courseEnrollments, 0, 10);
+            $analytics['popular_pdc_courses'] = $courseEnrollments; // Keep all for popular list
             
             // Sort completion rates
             usort($analytics['pdc_completion_rates'], function($a, $b) {
