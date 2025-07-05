@@ -1,5 +1,7 @@
 </div>
     </main>
+    
+    <!-- Footer within main content area -->
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-content">
@@ -297,15 +299,18 @@
     </script>
     
     <style>
-        /* Footer Styles */
+        /* Footer Styles - Updated to work within main content */
         .footer {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--darker-color) 100%);
-            border-top: 1px solid var(--glass-border);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
             margin-top: 4rem;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
         }
-        
+
         .footer::before {
             content: '';
             position: absolute;
@@ -315,10 +320,8 @@
             height: 2px;
             background: linear-gradient(90deg, var(--secondary-color), var(--info-color), var(--accent-color));
         }
-        
+
         .footer-container {
-            max-width: 1400px;
-            margin: 0 auto;
             padding: 3rem 2rem 1rem;
         }
         
