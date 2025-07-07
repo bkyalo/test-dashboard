@@ -74,6 +74,45 @@
             </div>
         </div>
         
+        <!-- Site Activity Heatmap -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-calendar-alt section-icon"></i>
+                    Site Activity Heatmap
+                </h2>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="refreshHeatmap()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="heatmap-container">
+                <div class="heatmap-header">
+                    <div class="time-label">Time of Day</div>
+                    <div class="heatmap-grid">
+                        <div class="y-axis-labels">
+                            <div>Monday</div>
+                            <div>Tuesday</div>
+                            <div>Wednesday</div>
+                            <div>Thursday</div>
+                            <div>Friday</div>
+                            <div>Saturday</div>
+                            <div>Sunday</div>
+                        </div>
+                        <div class="heatmap" id="siteVisitsHeatmap">
+                            <!-- Heatmap will be rendered here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div class="heatmap-legend">
+                    <span>Less</span>
+                    <div class="gradient"></div>
+                    <span>More</span>
+                </div>
+            </div>
+        </div>
+        
         <!-- Most Popular PDC Courses in Overview -->
         <?php if (!empty($pdcAnalytics['popular_pdc_courses'])): ?>
         <div class="section overview-pdc-section">

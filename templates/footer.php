@@ -122,6 +122,7 @@
     </footer>
     
     <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/heatmap.js"></script>
     <script>
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
